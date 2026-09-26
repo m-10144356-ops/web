@@ -1,0 +1,8 @@
+{
+  "name": "Nota Ulang Kaji Pendidikan Islam SPM (Tingkatan 4 & 5)",
+  "description": "Portal interaktif nota ulang kaji lengkap Pendidikan Islam SPM KSSM Tingkatan 4 & 5 merangkumi Al-Quran, Hadis, Akidah, Fikah, Sirah & Tamadun Islam, serta Akhlak Islamiyyah dengan penukar tingkatan, flashcards, kuiz objektif dan formula hafalan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
