@@ -951,22 +951,22 @@ export default function App() {
         {activeGrade === "T5" && (
           <div>
             {/* Notice Banner */}
-            <div className="p-4 bg-[#2b1a0c] border-2 border-[#ffd447] text-amber-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 shadow-[4px_4px_0_#0b1322]">
+            <div className="p-4 bg-[#2b1a0c] border-2 border-[#2fd17a] text-emerald-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 shadow-[4px_4px_0_#0b1322]">
               <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-[#ffd447] shrink-0 mt-0.5" />
+                <Sparkles className="w-5 h-5 text-[#2fd17a] shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-white font-bold text-sm pixel-font">
-                    Struktur Tajuk Silibus Tingkatan 5 (KSSM)
+                    Nota Lengkap Silibus Tingkatan 5 (KSSM SPM)
                   </h4>
-                  <p className="text-xs text-amber-200/90 mt-0.5">
-                    Semua 19 tajuk dan unit telah disusun mengikut 6 bidang utama. Ruang sedia untuk diisi dengan nota terperinci setiap bab bila-bila masa!
+                  <p className="text-xs text-emerald-200/90 mt-0.5">
+                    Merangkumi kesemua 19 tajuk dan unit (Pelajaran 3 hingga 21) mengikut 6 bidang utama bersama formula mnemonik, flashcards interaktif dan latihan soalan objektif SPM.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveGrade("T4")}
-                className="action-btn btn-navy text-xs shrink-0 py-1.5 px-3"
+                className="action-btn btn-light text-xs shrink-0 py-1.5 px-3"
               >
                 Lihat Nota Tingkatan 4
               </button>
@@ -1158,19 +1158,15 @@ export default function App() {
                             <div className="topic-body note">
                               {/* Direct Content or guide */}
                               {topic.directContentHtml && (
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: topic.directContentHtml
-                                  }}
+                                <StructuredT4Content
+                                  html={topic.directContentHtml}
+                                  topicId={topic.id}
                                 />
                               )}
 
                               {/* Subtopics Units */}
                               {topic.subtopics && topic.subtopics.length > 0 && (
-                                <div className="space-y-3 mt-3">
-                                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#ffd447]">
-                                    Pecahan Unit Tajuk:
-                                  </h4>
+                                <div className="space-y-3 mt-4">
                                   {topic.subtopics.map((sub) => {
                                     const isSubOpen = openSubtopicsT5.has(sub.id);
                                     return (
@@ -1211,17 +1207,17 @@ export default function App() {
                                   type="button"
                                 >
                                   <Check className="w-4 h-4" />
-                                  <span>{isDone ? "Sudah Disemak ✓" : "Tanda Sudah Semak"}</span>
+                                  <span>{isDone ? "Sudah Diulang Kaji ✓" : "Tanda Sudah Ulang Kaji"}</span>
                                 </button>
 
                                 <button
                                   onClick={() => copyTopicT5(topic)}
                                   className="action-btn btn-light"
                                   type="button"
-                                  title="Salin tajuk dan unit"
+                                  title="Salin nota pelajaran"
                                 >
                                   <Copy className="w-4 h-4" />
-                                  <span>Salin Tajuk</span>
+                                  <span>Salin Nota</span>
                                 </button>
                               </div>
                             </div>

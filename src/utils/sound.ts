@@ -42,6 +42,7 @@ export function getBgmAudio(): HTMLAudioElement | null {
       bgmAudio = new Audio("/audio/bgm.mp3");
       bgmAudio.id = "pi-spm-bgm";
       bgmAudio.preload = "auto";
+      document.body?.appendChild(bgmAudio);
     }
 
     bgmAudio.loop = true; // Repeat continuously
@@ -71,6 +72,7 @@ export function getBgmAudio(): HTMLAudioElement | null {
  * Plays or resumes the background music safely
  */
 export function playBgm(): Promise<void> | void {
+  if (!bgmEnabled) return;
   const audio = getBgmAudio();
   if (!audio) return;
 
@@ -83,10 +85,12 @@ export function playBgm(): Promise<void> | void {
 
   const playPromise = audio.play();
   if (playPromise !== undefined) {
-    return playPromise.catch((err) => {
-      // Autoplay policy prevented immediate playback; wait for next interaction
+    return playPromise.catch(() => {
+      // Browser autoplay policy prevented playback until user interaction
       const resumeOnGesture = () => {
         if (bgmEnabled && audio.paused) {
+          audio.muted = false;
+          audio.volume = 0.35;
           audio.play().catch(() => {});
         }
         window.removeEventListener("click", resumeOnGesture, true);
@@ -161,13 +165,28 @@ export function startBgmAutoplay(): void {
 
 // Automatically attempt to start background music when script loads in browser
 if (typeof window !== "undefined") {
-  if (document.readyState === "complete" || document.readyState === "interactive") {
+  const attempt = () => {
     startBgmAutoplay();
+  };
+
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    attempt();
   } else {
-    window.addEventListener("DOMContentLoaded", () => {
-      startBgmAutoplay();
-    });
+    window.addEventListener("DOMContentLoaded", attempt);
   }
+
+  // Global unlocker on first gesture if autoplay was blocked
+  const globalUnlock = () => {
+    if (bgmEnabled) {
+      const audio = getBgmAudio();
+      if (audio && audio.paused) {
+        audio.play().catch(() => {});
+      }
+    }
+  };
+  window.addEventListener("click", globalUnlock, { capture: true });
+  window.addEventListener("touchstart", globalUnlock, { capture: true });
+  window.addEventListener("pointerdown", globalUnlock, { capture: true });
 }
 
 function getAudioContext(): AudioContext | null {
