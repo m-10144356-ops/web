@@ -62,236 +62,202 @@ export const FlashcardsSectionT5: React.FC = () => {
     }
   };
 
-  const markKnown = () => {
+  const handleMarkKnown = () => {
     if (!currentCard) return;
-    const nextKnown = new Set(knownCards);
-    nextKnown.add(currentCard.id);
-    const nextRepeat = new Set(repeatCards);
-    nextRepeat.delete(currentCard.id);
+    const newKnown = new Set(knownCards);
+    newKnown.add(currentCard.id);
+    const newRepeat = new Set(repeatCards);
+    newRepeat.delete(currentCard.id);
 
-    setKnownCards(nextKnown);
-    setRepeatCards(nextRepeat);
-    localStorage.setItem("pi-spm-known-flashcards-t5", JSON.stringify(Array.from(nextKnown)));
-    localStorage.setItem("pi-spm-repeat-flashcards-t5", JSON.stringify(Array.from(nextRepeat)));
-    setStatusMessage("Kad ditandakan: Sudah Ingat! 🎉");
+    setKnownCards(newKnown);
+    setRepeatCards(newRepeat);
+    localStorage.setItem("pi-spm-known-flashcards-t5", JSON.stringify([...newKnown]));
+    localStorage.setItem("pi-spm-repeat-flashcards-t5", JSON.stringify([...newRepeat]));
 
-    setTimeout(() => {
-      if (currentIndex < deck.length - 1) {
+    setStatusMessage("Kad ditandakan sebagai dikuasai! ✓");
+    if (currentIndex < deck.length - 1) {
+      setTimeout(() => {
         handleNext();
-      }
-    }, 400);
+      }, 300);
+    }
   };
 
-  const markRepeat = () => {
+  const handleMarkRepeat = () => {
     if (!currentCard) return;
-    const nextRepeat = new Set(repeatCards);
-    nextRepeat.add(currentCard.id);
-    const nextKnown = new Set(knownCards);
-    nextKnown.delete(currentCard.id);
+    const newRepeat = new Set(repeatCards);
+    newRepeat.add(currentCard.id);
+    const newKnown = new Set(knownCards);
+    newKnown.delete(currentCard.id);
 
-    setRepeatCards(nextRepeat);
-    setKnownCards(nextKnown);
-    localStorage.setItem("pi-spm-repeat-flashcards-t5", JSON.stringify(Array.from(nextRepeat)));
-    localStorage.setItem("pi-spm-known-flashcards-t5", JSON.stringify(Array.from(nextKnown)));
-    setStatusMessage("Kad disimpan dalam senarai Ulang Semula 🔁");
+    setRepeatCards(newRepeat);
+    setKnownCards(newKnown);
+    localStorage.setItem("pi-spm-known-flashcards-t5", JSON.stringify([...newKnown]));
+    localStorage.setItem("pi-spm-repeat-flashcards-t5", JSON.stringify([...newRepeat]));
 
-    setTimeout(() => {
-      if (currentIndex < deck.length - 1) {
+    setStatusMessage("Kad ditandakan untuk diulang kaji semula.");
+    if (currentIndex < deck.length - 1) {
+      setTimeout(() => {
         handleNext();
-      }
-    }, 400);
+      }, 300);
+    }
   };
 
-  const resetAllProgress = () => {
-    setKnownCards(new Set());
-    setRepeatCards(new Set());
-    localStorage.removeItem("pi-spm-known-flashcards-t5");
-    localStorage.removeItem("pi-spm-repeat-flashcards-t5");
-    setStatusMessage("Kemajuan kad imbasan Tingkatan 5 telah diset semula.");
+  const handleShuffle = () => {
+    const randomIndex = Math.floor(Math.random() * deck.length);
+    setIsFlipped(false);
+    setCurrentIndex(randomIndex);
+    setStatusMessage("Kad dirawakkan.");
   };
-
-  const isCardKnown = currentCard ? knownCards.has(currentCard.id) : false;
-  const isCardRepeat = currentCard ? repeatCards.has(currentCard.id) : false;
 
   return (
-    <section className="memory-card p-5 md:p-6 mt-8" aria-labelledby="flashcards-t5-title">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          <span className="chapter-icon">
-            <svg className="px" width="24" height="24" aria-hidden="true">
-              <use href="#px-book" />
-            </svg>
-          </span>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 id="flashcards-t5-title" className="pixel-font text-2xl font-bold text-[#2fd17a]">
-                Flashcards Interaktif (Tingkatan 5)
-              </h2>
-              <span className="badge-tag bg-[#2fd17a] text-[#062b17] font-extrabold text-[10px] px-2 py-0.5">
-                {deck.length} Kad
-              </span>
-            </div>
-            <p className="text-xs text-emerald-200/80 mt-0.5">
-              Uji daya ingatan konsep, maksud istilah & dalil SPM Tingkatan 5
-            </p>
-          </div>
+    <section
+      id="flashcards-t5"
+      className="tool-card p-5 md:p-6 mt-8"
+      aria-labelledby="flashcards-t5-title"
+    >
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div>
+          <span className="field-label">Ulang Kaji Pantas T5</span>
+          <h2 id="flashcards-t5-title" className="pixel-font text-2xl font-bold mt-3 text-white">
+            Flashcards Interaktif (Tingkatan 5)
+          </h2>
+          <p className="mt-2 text-slate-300 max-w-2xl text-sm leading-relaxed">
+            Uji hafalan fakta asas, istilah syarak, dalil, dan hukum tajwid Tingkatan 5 dengan kad berbalik pantas.
+          </p>
         </div>
+        <div className="inv-box px-4 py-3 text-sm font-bold flex items-center gap-2">
+          <span>Kemajuan:</span>
+          <span className="font-mono text-amber-950">
+            {deck.length > 0 ? `Kad ${currentIndex + 1} daripada ${deck.length}` : "Tiada kad"}
+          </span>
+        </div>
+      </div>
 
-        {/* Filter by Field */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-300 font-bold hidden sm:inline">Bidang:</span>
+      {/* Filter and controls */}
+      <div className="grid md:grid-cols-[1fr_auto] gap-3 mt-6 items-end">
+        <div>
+          <label className="form-label block mb-2 text-sm font-bold" htmlFor="flashcard-filter-t5">
+            Tapis Mengikut Bidang
+          </label>
           <select
-            className="control text-xs py-1 px-2.5 max-w-[170px]"
+            id="flashcard-filter-t5"
+            className="flashcard-control cursor-pointer"
             value={selectedField}
             onChange={(e) => setSelectedField(e.target.value)}
           >
-            <option value="all">Semua Bidang ({flashcardsDataT5.length})</option>
+            <option value="all">Semua Bidang ({flashcardsDataT5.length} Kad)</option>
             {fields.map((f) => (
               <option key={f} value={f}>
-                {f}
+                {f} ({flashcardsDataT5.filter((c) => c.field === f).length} Kad)
               </option>
             ))}
           </select>
         </div>
-      </div>
-
-      {/* Progress Counter & Badges */}
-      <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-[#14243f] border-2 border-stone-700 text-xs mb-4">
-        <span className="font-bold text-white">
-          Kad {currentIndex + 1} daripada {deck.length}
-        </span>
-        <div className="flex items-center gap-3">
-          <span className="text-[#2fd17a] font-bold">
-            ✓ Sudah Ingat: {knownCards.size}
-          </span>
-          <span className="text-amber-400 font-bold">
-            ↺ Ulang Lagi: {repeatCards.size}
-          </span>
-        </div>
-      </div>
-
-      {/* Flashcard Area */}
-      {currentCard ? (
-        <div className="flex flex-col items-center">
-          <div
-            onClick={handleFlip}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleFlip();
-              }
-            }}
-            className={`w-full min-h-[220px] md:min-h-[260px] p-6 md:p-8 cursor-pointer transition-all duration-300 flex flex-col justify-between border-4 ${
-              isFlipped
-                ? "bg-[#183525] border-[#2fd17a] shadow-[6px_6px_0_#062b17]"
-                : "bg-[#25282f] border-stone-600 hover:border-[#2fd17a] shadow-[6px_6px_0_#14161a]"
-            }`}
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={handleShuffle}
+            className="action-btn btn-light"
+            type="button"
+            title="Rawakkan susunan kad"
           >
-            <div className="flex items-center justify-between border-b border-stone-600/60 pb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#111] text-emerald-300 border border-stone-600">
-                {currentCard.field} • SPM T5
-              </span>
-              <span className="text-xs text-slate-300 flex items-center gap-1">
-                <RotateCw className="w-3.5 h-3.5 text-emerald-400" />
-                {isFlipped ? "Klik untuk lihat soalan" : "Klik untuk buka jawapan"}
-              </span>
-            </div>
+            <Shuffle className="w-4 h-4" />
+            Rawak
+          </button>
+          <button
+            onClick={handlePrev}
+            disabled={currentIndex === 0}
+            className="action-btn btn-light"
+            type="button"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Sebelumnya
+          </button>
+          <button
+            onClick={handleNext}
+            disabled={currentIndex === deck.length - 1}
+            className="action-btn btn-navy"
+            type="button"
+          >
+            Seterusnya
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
 
-            <div className="py-6 text-center">
-              {!isFlipped ? (
-                <div>
-                  <span className="text-xs uppercase text-[#ffd447] font-bold tracking-widest block mb-2 font-mono">
-                    [ SOALAN / KONSEP ]
-                  </span>
-                  <p className="text-lg md:text-xl font-bold text-white leading-relaxed">
-                    {currentCard.front}
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <span className="text-xs uppercase text-[#2fd17a] font-bold tracking-widest block mb-2 font-mono">
-                    [ JAWAPAN LENGKAP & KATA KUNCI ]
-                  </span>
-                  <p className="text-base md:text-lg text-emerald-100 leading-relaxed font-medium">
-                    {currentCard.back}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-slate-400 border-t border-stone-600/60 pt-2">
-              <span>Status: {isCardKnown ? "✅ Dikuasai" : isCardRepeat ? "⚠️ Perlu Ulang" : "⚪ Belum Ditanda"}</span>
-              <span>Tekan Kad atau [Ruang] untuk Pusing</span>
-            </div>
-          </div>
-
-          {/* Status Toast */}
-          {statusMessage && (
-            <p className="text-xs font-bold text-[#2fd17a] mt-2 animate-pulse" aria-live="polite">
-              {statusMessage}
+      {/* 3D Flashcard - Identical styling to T4 screenshot */}
+      <div
+        className={`flashcard-scene mt-5 ${isFlipped ? "flipped" : ""}`}
+        onClick={handleFlip}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleFlip();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Tekan kad untuk menterbalikkan jawapan"
+      >
+        <div className="flashcard-inner">
+          {/* Front */}
+          <div className="flashcard-face face-front">
+            <span className="pixel-font text-xs uppercase tracking-widest text-[#ffd447] flex items-center gap-2">
+              <svg className="px" width="16" height="16" aria-hidden="true">
+                <use href="#px-book" />
+              </svg>
+              {currentCard?.field} • Soalan / Kata Kunci
+            </span>
+            <p className="mt-5 text-xl md:text-2xl font-bold leading-snug px-4 text-white">
+              {currentCard?.front}
             </p>
-          )}
+            <span className="mt-6 text-xs text-amber-200/90 font-medium flex items-center gap-1.5 bg-sky-950/60 px-3 py-1.5 border border-sky-700">
+              <RotateCw className="w-3.5 h-3.5 animate-spin-slow" />
+              Klik atau tekan Ruang (Space) untuk lihat jawapan
+            </span>
+          </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-4 w-full">
-            <button
-              onClick={handlePrev}
-              disabled={currentIndex === 0}
-              className="action-btn btn-light text-xs disabled:opacity-40"
-              type="button"
-            >
-              <ArrowLeft className="w-3.5 h-3.5 inline mr-1" />
-              Sebelum
-            </button>
-
-            <button
-              onClick={handleFlip}
-              className="action-btn btn-navy text-xs"
-              type="button"
-            >
-              <RotateCw className="w-3.5 h-3.5 inline mr-1" />
-              Pusing Kad
-            </button>
-
-            <button
-              onClick={markRepeat}
-              className={`action-btn text-xs ${
-                isCardRepeat ? "bg-amber-600 text-white" : "btn-light"
-              }`}
-              type="button"
-            >
-              ↺ Ulang Lagi
-            </button>
-
-            <button
-              onClick={markKnown}
-              className={`action-btn text-xs ${
-                isCardKnown ? "bg-emerald-600 text-white" : "btn-light"
-              }`}
-              type="button"
-            >
-              <Check className="w-3.5 h-3.5 inline mr-1 text-emerald-400" />
-              Sudah Ingat
-            </button>
-
-            <button
-              onClick={handleNext}
-              disabled={currentIndex === deck.length - 1}
-              className="action-btn btn-light text-xs disabled:opacity-40"
-              type="button"
-            >
-              Seterusnya
-              <ArrowRight className="w-3.5 h-3.5 inline ml-1" />
-            </button>
+          {/* Back */}
+          <div className="flashcard-face face-back">
+            <span className="pixel-font text-xs uppercase tracking-widest text-[#ffd447] flex items-center gap-2">
+              <svg className="px" width="16" height="16" aria-hidden="true">
+                <use href="#px-emerald" />
+              </svg>
+              Jawapan & Fakta Syarak
+            </span>
+            <p className="mt-5 text-base md:text-lg leading-relaxed font-semibold px-4 whitespace-pre-line text-white">
+              {currentCard?.back}
+            </p>
+            <span className="mt-6 text-xs text-amber-200/80">
+              Klik kad untuk kembali ke soalan
+            </span>
           </div>
         </div>
-      ) : (
-        <div className="text-center py-8 text-slate-300">
-          Tiada kad dalam kategori ini.
-        </div>
-      )}
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap gap-2 mt-5">
+        <button
+          onClick={handleMarkKnown}
+          className="action-btn btn-navy"
+          type="button"
+        >
+          <Check className="w-4 h-4" />
+          Saya Sudah Ingat (Dikuasai)
+        </button>
+        <button
+          onClick={handleMarkRepeat}
+          className="action-btn btn-light"
+          type="button"
+        >
+          <RotateCw className="w-4 h-4" />
+          Perlu Diulang Semula
+        </button>
+        {statusMessage && (
+          <span className="text-xs text-amber-300 font-bold self-center ml-2" aria-live="polite">
+            {statusMessage}
+          </span>
+        )}
+      </div>
     </section>
   );
 };

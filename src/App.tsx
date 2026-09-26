@@ -9,6 +9,7 @@ import { FormulaSectionT5 } from "./components/FormulaSectionT5";
 import { FlashcardsSectionT5 } from "./components/FlashcardsSectionT5";
 import { QuizSectionT5 } from "./components/QuizSectionT5";
 import { StructuredT4Content } from "./components/StructuredT4Content";
+import { StructuredTopicContent } from "./components/StructuredTopicContent";
 import {
   Search,
   ChevronDown,
@@ -510,12 +511,6 @@ export default function App() {
                   </a>
                   <a className="nav-link" href="#akhlak">
                     Akhlak
-                  </a>
-                  <a className="nav-link !border-amber-400 text-amber-200" href="#flashcards">
-                    Flashcards
-                  </a>
-                  <a className="nav-link !border-emerald-400 text-emerald-200" href="#kuiz">
-                    Kuiz
                   </a>
                 </>
               ) : (
@@ -1156,48 +1151,12 @@ export default function App() {
 
                           {isOpen && (
                             <div className="topic-body note">
-                              {/* Direct Content or guide */}
-                              {topic.directContentHtml && (
-                                <StructuredT4Content
-                                  html={topic.directContentHtml}
-                                  topicId={topic.id}
-                                />
-                              )}
-
-                              {/* Subtopics Units */}
-                              {topic.subtopics && topic.subtopics.length > 0 && (
-                                <div className="space-y-3 mt-4">
-                                  {topic.subtopics.map((sub) => {
-                                    const isSubOpen = openSubtopicsT5.has(sub.id);
-                                    return (
-                                      <div key={sub.id} className="subtopic-block">
-                                        <button
-                                          type="button"
-                                          className="subtopic-toggle"
-                                          aria-expanded={isSubOpen}
-                                          onClick={() => toggleSubtopicT5(sub.id)}
-                                        >
-                                          {sub.badge && <span className="field-label">{sub.badge}</span>}
-                                          <strong>{sub.title}</strong>
-                                          <ChevronDown
-                                            className={`w-4 h-4 text-[#ffd447] transition-transform duration-200 ${
-                                              isSubOpen ? "rotate-180" : ""
-                                            }`}
-                                          />
-                                        </button>
-                                        {isSubOpen && sub.contentHtml && (
-                                          <div
-                                            className="subtopic-content note"
-                                            dangerouslySetInnerHTML={{
-                                              __html: sub.contentHtml
-                                            }}
-                                          />
-                                        )}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
+                              {/* Unified Structured Topic Content (Pecahan Bahagian Modul, Semua Kad, Mod Fokus) */}
+                              <StructuredTopicContent
+                                html={topic.directContentHtml}
+                                subtopics={topic.subtopics}
+                                topicId={topic.id}
+                              />
 
                               {/* Action footer */}
                               <div className="topic-actions">
