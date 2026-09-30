@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { quizBankT5 } from "../data/quizBankT5";
 import { QuizQuestion } from "../data/quizBank";
 import { CheckCircle2, XCircle, RotateCcw, Award, Check } from "lucide-react";
+import { shuffleQuestionOptions } from "../utils/quizHelper";
 
 interface QuizResultItem {
   questionId: number;
@@ -38,7 +39,8 @@ export const QuizSectionT5: React.FC = () => {
     }
 
     const selected = pool.slice(0, Math.min(questionCount, pool.length));
-    setActiveQuestions(selected);
+    const preparedQuestions = selected.map(shuffleQuestionOptions);
+    setActiveQuestions(preparedQuestions);
     setCurrentIndex(0);
     setUserSelection(null);
     setIsAnswerChecked(false);
